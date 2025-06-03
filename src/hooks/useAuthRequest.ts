@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import axios, { AxiosError } from "axios";
+import { useErrorStore } from "@/components/store/useErrorStore";
 
 // Define return type for useAuthRequest
 interface AuthRequest {
@@ -80,7 +81,10 @@ const useAuthRequest = (): AuthRequest => {
 };
 
 export const handleResponse = (error: AxiosError): any => {
+    const setError = useErrorStore.getState().setError;
+
     if (!axios.isAxiosError(error) || !error.response) {
+        setError("Unexpected error occurred. Please try again.");
         console.warn("Unknown error or network failure.");
         return { status: false, message: "Unexpected error occurred. Please try again." };
     }
@@ -101,6 +105,7 @@ export const handleResponse = (error: AxiosError): any => {
     };
 
     console.warn(errorMessages[status] || "Unhandled error status:", status);
+    const message = data?.message || errorMessages[status] || "Something went wrong.";
 
     // Auto clear token for auth errors
     if ([401, 403].includes(status)) {
@@ -108,10 +113,12 @@ export const handleResponse = (error: AxiosError): any => {
         window.location.href = '/login';
     }
 
+    setError(message);
+
     return {
         status: false,
         code: status,
-        message: data?.message || errorMessages[status] || "Something went wrong." as any,
+        message,
         type: data?.type as any,
         error: data,
     };

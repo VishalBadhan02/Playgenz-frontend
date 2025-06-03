@@ -37,6 +37,7 @@ import SuperAdmin from "./pages/SuperAdmin";
 import TeamManagementPage from "./pages/TeamManagement";
 import Bookings from "./pages/Bookings";
 import Scorecard from "./pages/ScoreCard";
+import { GlobalErrorHandler } from "./components/RootLayout";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <GlobalErrorHandler />
         <BrowserRouter>
           <AuthProvider>
             <Routes>
