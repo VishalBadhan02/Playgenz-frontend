@@ -2,7 +2,7 @@
 
 
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 // Define return type for useAuthRequest
 interface AuthRequest {
@@ -48,7 +48,6 @@ const useAuthRequest = (): AuthRequest => {
             const res = await axios.post(url, data);
             return res.data;
         } catch (error) {
-            console.error("Error in POST request:", error);
             const data = handleResponse(error);
             if (data) {
                 return data;
@@ -80,33 +79,45 @@ const useAuthRequest = (): AuthRequest => {
     return { authGet, authPost, authPut, authDelete };
 };
 
-const handleResponse = (error: any) => {
-    if (axios.isAxiosError(error)) {
-        const status = error.response?.status;
-
-        if (status === 401) {
-            console.warn("Unauthorized! Redirecting to login...");
-            // Clear token and redirect to login (if needed)
-            localStorage.removeItem("token");
-        } else if (status === 403) {
-            console.warn("Access Denied! User lacks permissions.");
-            localStorage.removeItem("token");
-        } else if (status === 404) {
-            console.warn("Resource not found! Please check the URL.");
-            return error.response?.data;
-        } else if (status === 400) {
-            console.warn("Bad Request! Please check the request data.");
-        } else if (status === 408) {
-            console.warn("Request Timeout! Please try again.");
-        } else if (status === 429) {
-            console.warn("Too Many Requests! Please slow down.");
-        }
-        else if (status === 500 || status === 502 || status === 503) {
-            console.warn("Server error! Please try again later.");
-        }
-
-        throw error; // Re-throw the error after handling
+export const handleResponse = (error: AxiosError): any => {
+    if (!axios.isAxiosError(error) || !error.response) {
+        console.warn("Unknown error or network failure.");
+        return { status: false, message: "Unexpected error occurred. Please try again." };
     }
+
+    const status = error.response.status;
+    const data = error.response.data;
+
+    const errorMessages: Record<number, string> = {
+        400: "Bad Request! Please check the request data.",
+        401: "Unauthorized! Redirecting to login...",
+        403: "Access Denied! User lacks permissions.",
+        404: "Resource not found! Please check the URL.",
+        408: "Request Timeout! Please try again.",
+        429: "Too Many Requests! Please slow down.",
+        500: "Server error! Please try again later.",
+        502: "Bad Gateway! Please try again later.",
+        503: "Service Unavailable! Try again later.",
+    };
+
+    console.warn(errorMessages[status] || "Unhandled error status:", status);
+
+    // Auto clear token for auth errors
+    if ([401, 403].includes(status)) {
+        localStorage.removeItem("token");
+        window.location.href = '/login';
+    }
+
+    return {
+        status: false,
+        code: status,
+        message: data?.message || errorMessages[status] || "Something went wrong." as any,
+        type: data?.type as any,
+        error: data,
+    };
 };
 
 export default useAuthRequest;
+
+
+
