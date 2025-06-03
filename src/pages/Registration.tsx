@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAsync } from '@/hooks/use-async';
 import OTPVerificationModal from '@/components/OTPVerificationModal';
 import useAuthService from '@/services/authService';
+import { useRegisterMutation } from '@/hooks/useAuthMutation';
 
 const formSchema = z.object({
   firstName: z.string().min(2, { message: 'First name must be at least 2 characters' }),
@@ -60,47 +61,15 @@ const Registration = () => {
     },
   });
 
+  const { registerData, isSendingInvite } = useRegisterMutation({
+    setRegistration: register, // the API call function
+    form,
+    setRegistrationValues,
+    setShowOTPModal,
+  });
+
   const onSubmit = (values: FormValues) => {
-    execute(
-      register(values).then((res) => {
-        const { status, message } = res;
-        if (!status && message?.type === 'email') {
-          form.setError('email', {
-            type: 'manual',
-            message: message.message,
-          });
-          throw new Error('FORM_VALIDATION_ERROR');
-        }
-        if (!status && message?.type === 'phone') {
-          form.setError('phoneNumber', {
-            type: 'manual',
-            message: message.message,
-          });
-          throw new Error('FORM_VALIDATION_ERROR');
-        }
-        if (!status && message?.type === 'username') {
-          form.setError('userName', {
-            type: 'manual',
-            message: message.message,
-          });
-          throw new Error('FORM_VALIDATION_ERROR');
-        }
-        if (!res.status) {
-          throw new Error('Registration failed. Please try again.');
-        }
-
-        // Success logic
-        setRegistrationValues(res.data);
-        setShowOTPModal(true);
-
-        return res;
-      }),
-      {
-        successMessage: "Registration successful! Please verify OTP.",
-        errorMessage: "Registration failed. Please check your input.",
-        showErrorModal: true,
-      }
-    );
+    registerData(values);
   };
 
 
