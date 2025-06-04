@@ -18,24 +18,26 @@ export const useRegisterMutation = ({
 
     const {
         mutate: registerData,
-        isPending: isSendingInvite,
+        isPending: isPending,
     } = useMutation({
         mutationFn: (values: object) => setRegistration(values),
         onSuccess: (res: any) => {
+
             const { status, message } = res;
 
-            if (!status) {
-                if (message?.type === 'email') {
+            if (!res.status) {
+
+                if (res?.message?.type === 'email') {
                     form.setError('email', {
                         type: 'manual',
                         message: message.message,
                     });
-                } else if (message?.type === 'phone') {
+                } else if (res?.message?.type === 'phone') {
                     form.setError('phoneNumber', {
                         type: 'manual',
                         message: message.message,
                     });
-                } else if (message?.type === 'username') {
+                } else if (res?.message?.type === 'userName') {
                     form.setError('userName', {
                         type: 'manual',
                         message: message.message,
@@ -59,7 +61,7 @@ export const useRegisterMutation = ({
                 description: 'Please verify OTP.',
             });
         },
-        onError: () => {
+        onError: (error) => {
             toast({
                 variant: 'destructive',
                 title: 'Something went wrong.',
@@ -70,6 +72,6 @@ export const useRegisterMutation = ({
 
     return {
         registerData,
-        isSendingInvite,
+        isPending,
     };
 };

@@ -113,7 +113,7 @@ export const handleResponse = (error: AxiosError): any => {
         window.location.href = '/login';
     }
 
-    setError(message);
+    // setError(message);
 
     return {
         status: false,

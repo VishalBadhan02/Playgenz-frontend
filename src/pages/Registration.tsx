@@ -38,7 +38,7 @@ const Registration = () => {
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
   const { login } = useAuth();
   const { register, verifyOtp } = useAuthService();
-  const { loading, execute, ServerErrorModal } = useAsync();
+  const {  execute, ServerErrorModal } = useAsync();
 
   // State for address auto-detection
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
@@ -61,7 +61,7 @@ const Registration = () => {
     },
   });
 
-  const { registerData, isSendingInvite } = useRegisterMutation({
+  const { registerData, isPending } = useRegisterMutation({
     setRegistration: register, // the API call function
     form,
     setRegistrationValues,
@@ -171,7 +171,7 @@ const Registration = () => {
                               placeholder="First name"
                               className="pl-9"
                               {...field}
-                              disabled={loading}
+                              disabled={isPending}
                             />
                           </div>
                         </FormControl>
@@ -192,7 +192,7 @@ const Registration = () => {
                               placeholder="Last name"
                               className="pl-9"
                               {...field}
-                              disabled={loading}
+                              disabled={isPending}
                             />
                           </div>
                         </FormControl>
@@ -215,7 +215,7 @@ const Registration = () => {
                             placeholder="Choose a username"
                             className="pl-9"
                             {...field}
-                            disabled={loading}
+                            disabled={isPending}
                           />
                         </div>
                       </FormControl>
@@ -238,7 +238,7 @@ const Registration = () => {
                             type="email"
                             className="pl-9"
                             {...field}
-                            disabled={loading}
+                            disabled={isPending}
                           />
                         </div>
                       </FormControl>
@@ -261,7 +261,7 @@ const Registration = () => {
                             type="tel"
                             className="pl-9"
                             {...field}
-                            disabled={loading}
+                            disabled={isPending}
                           />
                         </div>
                       </FormControl>
@@ -283,14 +283,14 @@ const Registration = () => {
                             placeholder="Enter your address"
                             className="pl-9 pr-[100px]"
                             {...field}
-                            disabled={loading || isLoadingLocation}
+                            disabled={isPending || isLoadingLocation}
                           />
                           <Button
                             type="button"
                             variant="ghost"
                             size="sm"
                             onClick={detectLocation}
-                            disabled={loading || isLoadingLocation}
+                            disabled={isPending || isLoadingLocation}
                             className="absolute right-1 top-1/2 -translate-y-1/2 h-8"
                           >
                             {isLoadingLocation ? (
@@ -322,14 +322,14 @@ const Registration = () => {
                             type={showPassword ? "text" : "password"}
                             className="pl-9 pr-9"
                             {...field}
-                            disabled={loading}
+                            disabled={isPending}
                           />
                           <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
                             className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                             aria-label={showPassword ? "Hide password" : "Show password"}
-                            disabled={loading}
+                            disabled={isPending}
                           >
                             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                           </button>
@@ -353,14 +353,14 @@ const Registration = () => {
                             type={showConfirmPassword ? "text" : "password"}
                             className="pl-9 pr-9"
                             {...field}
-                            disabled={loading}
+                            disabled={isPending}
                           />
                           <button
                             type="button"
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                             className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                             aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-                            disabled={loading}
+                            disabled={isPending}
                           >
                             {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                           </button>
@@ -370,8 +370,8 @@ const Registration = () => {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full" disabled={isSendingInvite}>
-                  {loading ? (
+                <Button type="submit" className="w-full" disabled={isPending}>
+                  {isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Creating Account...
@@ -395,8 +395,8 @@ const Registration = () => {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" className="w-full" disabled={loading}>Google</Button>
-              <Button variant="outline" className="w-full" disabled={loading}>Facebook</Button>
+              <Button variant="outline" className="w-full" disabled={isPending}>Google</Button>
+              <Button variant="outline" className="w-full" disabled={isPending}>Facebook</Button>
             </div>
             <div className="text-center text-sm">
               Already have an account?{" "}
