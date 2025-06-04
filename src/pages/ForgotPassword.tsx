@@ -53,7 +53,7 @@ const ForgotPassword = () => {
 
   const onSubmit = (values: FormValues) => {
     setEmail(values.email);
-    
+
     execute(
       // This would be a real API call in a production app
       new Promise((resolve) => {
@@ -113,8 +113,8 @@ const ForgotPassword = () => {
         <Card className="w-full">
           <CardHeader className="space-y-1">
             <div className="flex items-center">
-              <Link 
-                to="/login" 
+              <Link
+                to="/login"
                 className="mr-2 rounded-full p-1 hover:bg-accent/10"
                 aria-label="Back to login"
               >
@@ -123,9 +123,9 @@ const ForgotPassword = () => {
               <CardTitle className="text-2xl font-bold">Forgot Password</CardTitle>
             </div>
             <CardDescription>
-              {!isSubmitted 
-                ? "Enter your email address and we'll send you a verification code" 
-                : showResetForm 
+              {!isSubmitted
+                ? "Enter your email address and we'll send you a verification code"
+                : showResetForm
                   ? "Enter your new password"
                   : "Check your email for a verification code"}
             </CardDescription>
@@ -143,11 +143,11 @@ const ForgotPassword = () => {
                         <FormControl>
                           <div className="relative">
                             <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input 
-                              placeholder="Enter your email" 
-                              type="email" 
-                              className="pl-9" 
-                              {...field} 
+                            <Input
+                              placeholder="Enter your email, phone number or username"
+                              type="email"
+                              className="pl-9"
+                              {...field}
                               disabled={loading}
                             />
                           </div>
@@ -159,7 +159,7 @@ const ForgotPassword = () => {
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Sending Code...
                       </>
                     ) : (
@@ -179,11 +179,11 @@ const ForgotPassword = () => {
                         <FormLabel>New Password</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Input 
-                              placeholder="Enter new password" 
-                              type={showPassword ? "text" : "password"} 
-                              className="pl-3 pr-9" 
-                              {...field} 
+                            <Input
+                              placeholder="Enter new password"
+                              type={showPassword ? "text" : "password"}
+                              className="pl-3 pr-9"
+                              {...field}
                               disabled={loading}
                             />
                             <button
@@ -209,11 +209,11 @@ const ForgotPassword = () => {
                         <FormLabel>Confirm Password</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Input 
-                              placeholder="Confirm your password" 
-                              type={showConfirmPassword ? "text" : "password"} 
-                              className="pl-3 pr-9" 
-                              {...field} 
+                            <Input
+                              placeholder="Confirm your password"
+                              type={showConfirmPassword ? "text" : "password"}
+                              className="pl-3 pr-9"
+                              {...field}
                               disabled={loading}
                             />
                             <button
@@ -234,7 +234,7 @@ const ForgotPassword = () => {
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Resetting Password...
                       </>
                     ) : (
@@ -250,15 +250,15 @@ const ForgotPassword = () => {
                     We've sent a verification code to your email. Please check your inbox and enter the code.
                   </p>
                 </div>
-                <Button 
-                  onClick={() => setShowOTPModal(true)} 
+                <Button
+                  onClick={() => setShowOTPModal(true)}
                   className="w-full"
                 >
                   Enter Verification Code
                 </Button>
-                <Button 
-                  onClick={() => setIsSubmitted(false)} 
-                  variant="outline" 
+                <Button
+                  onClick={() => setIsSubmitted(false)}
+                  variant="outline"
                   className="w-full"
                 >
                   Try another email
@@ -281,11 +281,12 @@ const ForgotPassword = () => {
         isOpen={showOTPModal}
         onOpenChange={setShowOTPModal}
         email={email}
+        token=""
         onVerificationSuccess={handleOTPVerificationSuccess}
         onResendOTP={handleResendOTP}
         purpose="password-reset"
       />
-      
+
       <ServerErrorModal />
     </div>
   );
