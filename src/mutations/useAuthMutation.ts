@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "../hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { ForgotPasswordMutationProps, LoginMutationProps, OTPVerifyProps, RegisterMutationProps } from "../hooks/types";
+import { ForgotPasswordMutationProps, LoginMutationProps, OTPVerifyProps, RegisterMutationProps, ResetPasswordMutationProps } from "../hooks/types";
 import { useState } from "react";
 
 
@@ -89,10 +89,10 @@ export const useLoginMutation = ({ handlelogin, form }: LoginMutationProps) => {
             const { status, message, data } = res;
 
             if (status === false) {
-                console.log("sfjkdnd")
-                console.log(message)
+                // console.log("sfjkdnd")
+                // console.log(message)
                 if (message?.type === "email" || message?.type === "userName" || message?.type === "phoneNumber") {
-                    console.log("s")
+                    // console.log("s")
 
                     form.setError("email", {
                         type: "manual",
@@ -247,6 +247,68 @@ export const useOTPVerificationMutation = ({
     return {
         verifyOTP,
         isPending,
+    };
+};
+
+
+
+
+export const useResetPasswordMutation = ({
+    handleResetPassword,
+    form,
+    onSuccessCallback,
+}: ResetPasswordMutationProps) => {
+    const { toast } = useToast();
+    const [forgetResponseData, setForgetResponseData] = useState<any>(null);
+    const { login } = useAuth();
+
+    const {
+        mutate: handleresetPassword,
+        isPending,
+    } = useMutation({
+        mutationFn: ({ values, token }: { values: any; token: any }) =>
+            handleResetPassword(values, token),
+        onSuccess: (res: any) => {
+            const { status, message, data } = res;
+
+            if (!status) {
+                if (message?.type === 'password') {
+                    form.setError('password', {
+                        type: 'manual',
+                        message: message?.message,
+                    });
+                } else {
+                    toast({
+                        variant: 'destructive',
+                        title: 'Reset Failed',
+                        description: message?.message || 'Password reset failed.',
+                    });
+                }
+                return;
+            }
+
+            setForgetResponseData(data);
+
+            toast({
+                title: 'Password Reset Successful!',
+                description: 'You can now log in with your new password.',
+            });
+            login(data?.token);
+            onSuccessCallback?.(); // e.g., redirect to login
+        },
+        onError: () => {
+            toast({
+                variant: 'destructive',
+                title: 'Something went wrong.',
+                description: 'Failed to reset password. Please try again.',
+            });
+        },
+    });
+
+    return {
+        handleresetPassword,
+        isPending,
+        forgetResponseData,
     };
 };
 

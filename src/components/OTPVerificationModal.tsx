@@ -42,7 +42,7 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
   const { loading, execute, error } = useAsync();
   const [verificationStatus, setVerificationStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const { verifyOtp } = useAuthService();
-  console.log("token", token);
+
   // Start countdown timer when modal opens
   useEffect(() => {
     if (isOpen && timeLeft > 0) {

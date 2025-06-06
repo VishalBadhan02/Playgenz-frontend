@@ -32,12 +32,16 @@ const useAuthService = () => {
         return await authPost(`${Config.API_GATEWAY}${Config.ENDPOINTS.AUTH}/handleForget`, userData);
     };
 
-    // ✅ Fetch Team Info
-    const getTeam = async () => {
-        return await authGet(`http://${Config.HOST}:${Config.PORT}/auth/getTeam`);
+
+    // ✅ Reset-Password
+    const resetPassword = async (reserData: object, token: any) => {
+        axios.defaults.headers.common["Authorization"] = token;
+        return await authPost(`${Config.API_GATEWAY}${Config.ENDPOINTS.AUTH}/resetPassword`, reserData);
     };
 
-    return { handlelogin, register, verifyOtp, setPassword, getTeam, forgetpassword };
+
+
+    return { handlelogin, register, verifyOtp, setPassword, forgetpassword, resetPassword };
 };
 
 export default useAuthService;

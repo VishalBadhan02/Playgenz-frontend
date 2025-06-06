@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useAsync } from '@/hooks/use-async';
 import OTPVerificationModal from '@/components/OTPVerificationModal';
 import useAuthService from '@/services/authService';
-import { useForgotPasswordMutation } from '@/mutations/useAuthMutation';
+import { useForgotPasswordMutation, useResetPasswordMutation } from '@/mutations/useAuthMutation';
 import { formSchema } from '@/validationSchemas/forgetPassword.schema';
 
 
@@ -25,7 +25,7 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const { loading, execute, ServerErrorModal } = useAsync();
   const [showResetForm, setShowResetForm] = useState(false);
-  const { forgetpassword } = useAuthService();
+  const { forgetpassword, resetPassword } = useAuthService();
 
 
   const form = useForm<FormValues>({
@@ -41,6 +41,19 @@ const ForgotPassword = () => {
     onSuccessCallback: () => { setShowOTPModal(true), setIsSubmitted(true); }, // optional
     // setShowResetForm,
   });
+
+  const {
+    handleresetPassword,
+    isPending: isResetting,
+    forgetResponseData,
+  } = useResetPasswordMutation({
+    handleResetPassword: resetPassword,
+    form,
+    onSuccessCallback: () => {
+      // router.push("/login");
+    },
+  });
+
 
   const resetPasswordFormSchema = z.object({
     password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
@@ -65,26 +78,10 @@ const ForgotPassword = () => {
     setEmail(values.email);
     if (isPending) return;
     sendForgotPasswordRequest(values);
-
-    // execute(
-    //   // This would be a real API call in a production app
-    //   new Promise((resolve) => {
-    //     setTimeout(() => {
-    //       resolve(true);
-    //     }, 1000);
-    //   }),
-    //   {
-    //     successMessage: "OTP sent successfully!",
-    //     errorMessage: "Failed to send OTP. Please try again.",
-    //   }
-    // ).then(() => {
-    //   setIsSubmitted(true);
-    //   setShowOTPModal(true);
-    // });
   };
 
   const handleOTPVerificationSuccess = (data: any) => {
-    console.log("OTP verification successful:", data);
+    // console.log("OTP verification successful:", data);
     setShowOTPModal(false);
     setShowResetForm(true);
   };
@@ -95,22 +92,10 @@ const ForgotPassword = () => {
   };
 
   const handleResetPassword = (data: z.infer<typeof resetPasswordFormSchema>) => {
-    execute(
-      // This would be a real API call in a production app
-      new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(true);
-        }, 1000);
-      }),
-      {
-        successMessage: "Password reset successfully!",
-        errorMessage: "Failed to reset password. Please try again.",
-      }
-    ).then(() => {
-      // After successful password reset, redirect to login page
-      setTimeout(() => {
-        window.location.href = '/login';
-      }, 1500);
+    console.log(data)
+    handleresetPassword({
+      values: data,
+      token: responseData, // insert actual token here, maybe from URL or props
     });
   };
 
@@ -306,13 +291,3 @@ const ForgotPassword = () => {
 };
 
 export default ForgotPassword;
-
-
-
-
-
-
-// const onSubmit = (values: { email: string }) => {
-//   if (isPending) return;
-//   sendForgotPasswordRequest(values);
-// };

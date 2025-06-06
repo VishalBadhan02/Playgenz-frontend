@@ -24,3 +24,10 @@ export interface OTPVerifyProps {
     form: any;
     onSuccessCallback?: () => void;
 }
+
+
+export interface ResetPasswordMutationProps {
+    handleResetPassword: (values: any, token: any) => Promise<any>;
+    form: any;
+    onSuccessCallback?: () => void;
+}
