@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAsync } from '@/hooks/use-async';
 import OTPVerificationModal from '@/components/OTPVerificationModal';
 import useAuthService from '@/services/authService';
-import { useRegisterMutation } from '@/hooks/useAuthMutation';
+import { useRegisterMutation } from '@/mutations/useAuthMutation';
 import RegistrationForm from '@/components/forms/registrationForm';
 import { registrationSchema } from '@/validationSchemas/registration.schema';
 

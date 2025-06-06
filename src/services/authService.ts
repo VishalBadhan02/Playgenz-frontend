@@ -16,14 +16,20 @@ const useAuthService = () => {
     };
 
     // ✅ OTP Verification
-    const verifyOtp = async (otp: string, token: any) => {
+    const verifyOtp = async (otp: string, purpose: string, token: any) => {
         axios.defaults.headers.common["Authorization"] = token;
-        return await authPost(`${Config.API_GATEWAY}${Config.ENDPOINTS.AUTH}/otpverify`, { otp });
+        return await authPost(`${Config.API_GATEWAY}${Config.ENDPOINTS.AUTH}/otpverify`, { otp, purpose });
     };
+
 
     // ✅ Set/reset password
     const setPassword = async (passwordData: { password: string; token: string }) => {
         return await authPut(`${Config.API_GATEWAY}${Config.ENDPOINTS.AUTH}/setpassword`, passwordData);
+    };
+
+    // ✅ OTP Verification
+    const forgetpassword = async (userData: object) => {
+        return await authPost(`${Config.API_GATEWAY}${Config.ENDPOINTS.AUTH}/handleForget`, userData);
     };
 
     // ✅ Fetch Team Info
@@ -31,7 +37,7 @@ const useAuthService = () => {
         return await authGet(`http://${Config.HOST}:${Config.PORT}/auth/getTeam`);
     };
 
-    return { handlelogin, register, verifyOtp, setPassword, getTeam };
+    return { handlelogin, register, verifyOtp, setPassword, getTeam, forgetpassword };
 };
 
 export default useAuthService;

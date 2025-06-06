@@ -11,10 +11,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAsync } from '@/hooks/use-async';
 import OTPVerificationModal from '@/components/OTPVerificationModal';
+import useAuthService from '@/services/authService';
+import { useForgotPasswordMutation } from '@/mutations/useAuthMutation';
+import { formSchema } from '@/validationSchemas/forgetPassword.schema';
 
-const formSchema = z.object({
-  email: z.string().email({ message: 'Please enter a valid email address' }),
-});
+
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -24,12 +25,21 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const { loading, execute, ServerErrorModal } = useAsync();
   const [showResetForm, setShowResetForm] = useState(false);
+  const { forgetpassword } = useAuthService();
+
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: '',
     },
+  });
+
+  const { sendForgotPasswordRequest, isPending, responseData } = useForgotPasswordMutation({
+    handleForgotPassword: forgetpassword,
+    form,
+    onSuccessCallback: () => { setShowOTPModal(true), setIsSubmitted(true); }, // optional
+    // setShowResetForm,
   });
 
   const resetPasswordFormSchema = z.object({
@@ -53,25 +63,28 @@ const ForgotPassword = () => {
 
   const onSubmit = (values: FormValues) => {
     setEmail(values.email);
+    if (isPending) return;
+    sendForgotPasswordRequest(values);
 
-    execute(
-      // This would be a real API call in a production app
-      new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(true);
-        }, 1000);
-      }),
-      {
-        successMessage: "OTP sent successfully!",
-        errorMessage: "Failed to send OTP. Please try again.",
-      }
-    ).then(() => {
-      setIsSubmitted(true);
-      setShowOTPModal(true);
-    });
+    // execute(
+    //   // This would be a real API call in a production app
+    //   new Promise((resolve) => {
+    //     setTimeout(() => {
+    //       resolve(true);
+    //     }, 1000);
+    //   }),
+    //   {
+    //     successMessage: "OTP sent successfully!",
+    //     errorMessage: "Failed to send OTP. Please try again.",
+    //   }
+    // ).then(() => {
+    //   setIsSubmitted(true);
+    //   setShowOTPModal(true);
+    // });
   };
 
-  const handleOTPVerificationSuccess = () => {
+  const handleOTPVerificationSuccess = (data: any) => {
+    console.log("OTP verification successful:", data);
     setShowOTPModal(false);
     setShowResetForm(true);
   };
@@ -148,7 +161,7 @@ const ForgotPassword = () => {
                               type="email"
                               className="pl-9"
                               {...field}
-                              disabled={loading}
+                              disabled={isPending}
                             />
                           </div>
                         </FormControl>
@@ -156,8 +169,8 @@ const ForgotPassword = () => {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? (
+                  <Button type="submit" className="w-full" disabled={isPending}>
+                    {isPending ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Sending Code...
@@ -281,7 +294,7 @@ const ForgotPassword = () => {
         isOpen={showOTPModal}
         onOpenChange={setShowOTPModal}
         email={email}
-        token=""
+        token={responseData}
         onVerificationSuccess={handleOTPVerificationSuccess}
         onResendOTP={handleResendOTP}
         purpose="password-reset"
@@ -293,3 +306,13 @@ const ForgotPassword = () => {
 };
 
 export default ForgotPassword;
+
+
+
+
+
+
+// const onSubmit = (values: { email: string }) => {
+//   if (isPending) return;
+//   sendForgotPasswordRequest(values);
+// };

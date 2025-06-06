@@ -1,13 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
-import { useToast } from "./use-toast";
+import { useToast } from "../hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { ForgotPasswordMutationProps, LoginMutationProps, OTPVerifyProps, RegisterMutationProps } from "../hooks/types";
+import { useState } from "react";
 
-interface RegisterMutationProps {
-    setRegistration: (data: any) => Promise<any>;
-    form: any;
-    setRegistrationValues: (data: any) => void;
-    setShowOTPModal: (show: boolean) => void;
-}
+
 
 export const useRegisterMutation = ({
     setRegistration,
@@ -79,11 +76,6 @@ export const useRegisterMutation = ({
 
 
 
-interface LoginMutationProps {
-    handlelogin: (data: any) => Promise<any>;
-    form: any;
-}
-
 export const useLoginMutation = ({ handlelogin, form }: LoginMutationProps) => {
     const { toast } = useToast();
     const { login } = useAuth();
@@ -142,3 +134,119 @@ export const useLoginMutation = ({ handlelogin, form }: LoginMutationProps) => {
         isPending,
     };
 };
+
+
+
+export const useForgotPasswordMutation = ({
+    handleForgotPassword,
+    form,
+    onSuccessCallback,
+}: ForgotPasswordMutationProps) => {
+    const { toast } = useToast();
+    const [responseData, setResponseData] = useState<any>(null); // <- NEW
+
+    const {
+        mutate: sendForgotPasswordRequest,
+        isPending,
+    } = useMutation({
+        mutationFn: (values: any) => handleForgotPassword(values),
+        onSuccess: (res: any) => {
+            const { status, message, data } = res;
+
+            if (!status) {
+                if (message?.type === 'email' || message?.type === 'phone') {
+                    form.setError('email', {
+                        type: 'manual',
+                        message: message?.message,
+                    });
+                } else {
+                    toast({
+                        variant: 'destructive',
+                        title: 'Reset Failed',
+                        description: message?.message || 'Unable to send reset instructions.',
+                    });
+                }
+                return;
+            }
+
+            setResponseData(data); // <- SAVE TOKEN
+
+            toast({
+                title: 'Reset Link Sent!',
+                description: 'Please check your inbox or SMS for the OTP or reset link.',
+            });
+
+            onSuccessCallback?.(); // optional callback, e.g., open OTP modal
+        },
+        onError: () => {
+            toast({
+                variant: 'destructive',
+                title: 'Something went wrong.',
+                description: 'Failed to send reset instructions. Please try again.',
+            });
+        },
+    });
+
+    return {
+        sendForgotPasswordRequest,
+        isPending,
+        responseData, // <- RETURN IT
+    };
+};
+
+
+
+export const useOTPVerificationMutation = ({
+    handleVerifyOTP,
+    form,
+    onSuccessCallback,
+}: OTPVerifyProps) => {
+    const { toast } = useToast();
+
+    const {
+        mutate: verifyOTP,
+        isPending,
+    } = useMutation({
+        mutationFn: (values: any) => handleVerifyOTP(values),
+        onSuccess: (res: any) => {
+            const { status, message } = res;
+
+            if (!status) {
+                if (message?.type === 'code') {
+                    form.setError('code', {
+                        type: 'manual',
+                        message: message?.message,
+                    });
+                } else {
+                    toast({
+                        variant: 'destructive',
+                        title: 'OTP Verification Failed',
+                        description: message?.message || 'Invalid OTP or expired.',
+                    });
+                }
+                return;
+            }
+
+            // ✅ OTP verified successfully
+            toast({
+                title: 'OTP Verified!',
+                description: 'Your account has been verified.',
+            });
+
+            onSuccessCallback?.(); // Open next form, proceed to login, etc.
+        },
+        onError: () => {
+            toast({
+                variant: 'destructive',
+                title: 'Something went wrong.',
+                description: 'Failed to verify OTP. Please try again.',
+            });
+        },
+    });
+
+    return {
+        verifyOTP,
+        isPending,
+    };
+};
+

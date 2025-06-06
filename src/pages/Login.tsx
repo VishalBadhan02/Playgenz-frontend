@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import useAuthService from '@/services/authService';
-import { useLoginMutation } from '@/hooks/useAuthMutation';
+import { useLoginMutation } from '@/mutations/useAuthMutation';
 import LoginForm from '@/components/forms/loginForm';
 import { formSchema } from '@/validationSchemas/login.schema';
 
