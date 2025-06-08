@@ -16,7 +16,7 @@ import { Button } from '../ui/button';
 import { ErrorModal } from '../ErrorModal';
 import { Spinner } from '../Spinner';
 import useScoreService from '@/services/scoreService';
-import { useFixtureMutations } from '@/hooks/useFixtureMutations';
+import { useFixtureMutations } from '@/mutations/useFixtureMutations';
 
 
 interface FixtureGeneratorProps {

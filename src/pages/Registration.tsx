@@ -3,41 +3,25 @@ import { Link } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeOff, Mail, Lock, User, Loader2, MapPin, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAsync } from '@/hooks/use-async';
 import OTPVerificationModal from '@/components/OTPVerificationModal';
 import useAuthService from '@/services/authService';
+import { useRegisterMutation } from '@/mutations/useAuthMutation';
+import RegistrationForm from '@/components/forms/registrationForm';
+import { registrationSchema } from '@/validationSchemas/registration.schema';
 
-const formSchema = z.object({
-  firstName: z.string().min(2, { message: 'First name must be at least 2 characters' }),
-  lastName: z.string().min(2, { message: 'Last name must be at least 2 characters' }),
-  userName: z.string().min(3, { message: 'Username must be at least 3 characters' }),
-  email: z.string().email({ message: 'Please enter a valid email address' }),
-  phoneNumber: z.string()
-    .min(10, { message: 'Phone number must be at least 10 digits' })
-    .max(15, { message: 'Phone number must not exceed 15 digits' }),
-  address: z.string().min(5, { message: 'Address must be at least 5 characters' }),
-  password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
-  confirmPassword: z.string().min(8, { message: 'Password must be at least 8 characters' }),
-  token: z.string().optional(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ['confirmPassword'],
-});
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<typeof registrationSchema>;
 
 const Registration = () => {
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
   const { login } = useAuth();
   const { register, verifyOtp } = useAuthService();
-  const { loading, execute, ServerErrorModal } = useAsync();
+  const { execute, ServerErrorModal } = useAsync();
 
   // State for address auto-detection
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
@@ -47,7 +31,7 @@ const Registration = () => {
   const [registrationValues, setRegistrationValues] = useState<FormValues | null>(null);
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(registrationSchema),
     defaultValues: {
       firstName: '',
       lastName: '',
@@ -60,47 +44,15 @@ const Registration = () => {
     },
   });
 
+  const { registerData, isPending } = useRegisterMutation({
+    setRegistration: register, // the API call function
+    form,
+    setRegistrationValues,
+    setShowOTPModal,
+  });
+
   const onSubmit = (values: FormValues) => {
-    execute(
-      register(values).then((res) => {
-        const { status, message } = res;
-        if (!status && message?.type === 'email') {
-          form.setError('email', {
-            type: 'manual',
-            message: message.message,
-          });
-          throw new Error('FORM_VALIDATION_ERROR');
-        }
-        if (!status && message?.type === 'phone') {
-          form.setError('phoneNumber', {
-            type: 'manual',
-            message: message.message,
-          });
-          throw new Error('FORM_VALIDATION_ERROR');
-        }
-        if (!status && message?.type === 'username') {
-          form.setError('userName', {
-            type: 'manual',
-            message: message.message,
-          });
-          throw new Error('FORM_VALIDATION_ERROR');
-        }
-        if (!res.status) {
-          throw new Error('Registration failed. Please try again.');
-        }
-
-        // Success logic
-        setRegistrationValues(res.data);
-        setShowOTPModal(true);
-
-        return res;
-      }),
-      {
-        successMessage: "Registration successful! Please verify OTP.",
-        errorMessage: "Registration failed. Please check your input.",
-        showErrorModal: true,
-      }
-    );
+    registerData(values);
   };
 
 
@@ -186,233 +138,17 @@ const Registration = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="firstName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>First Name</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input
-                              placeholder="First name"
-                              className="pl-9"
-                              {...field}
-                              disabled={loading}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="lastName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Last Name</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input
-                              placeholder="Last name"
-                              className="pl-9"
-                              {...field}
-                              disabled={loading}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="userName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Username</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                          <Input
-                            placeholder="Choose a username"
-                            className="pl-9"
-                            {...field}
-                            disabled={loading}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                          <Input
-                            placeholder="Enter your email"
-                            type="email"
-                            className="pl-9"
-                            {...field}
-                            disabled={loading}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="phoneNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                          <Input
-                            placeholder="Enter phone number"
-                            type="tel"
-                            className="pl-9"
-                            {...field}
-                            disabled={loading}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Address</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                          <Input
-                            placeholder="Enter your address"
-                            className="pl-9 pr-[100px]"
-                            {...field}
-                            disabled={loading || isLoadingLocation}
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={detectLocation}
-                            disabled={loading || isLoadingLocation}
-                            className="absolute right-1 top-1/2 -translate-y-1/2 h-8"
-                          >
-                            {isLoadingLocation ? (
-                              <>
-                                <Loader2 className="mr-1 h-3 w-3 animate-spin" /> Locating
-                              </>
-                            ) : (
-                              'Detect'
-                            )}
-                          </Button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                          <Input
-                            placeholder="Create a password"
-                            type={showPassword ? "text" : "password"}
-                            className="pl-9 pr-9"
-                            {...field}
-                            disabled={loading}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-                            aria-label={showPassword ? "Hide password" : "Show password"}
-                            disabled={loading}
-                          >
-                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                          </button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                          <Input
-                            placeholder="Confirm your password"
-                            type={showConfirmPassword ? "text" : "password"}
-                            className="pl-9 pr-9"
-                            {...field}
-                            disabled={loading}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-                            aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-                            disabled={loading}
-                          >
-                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                          </button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating Account...
-                    </>
-                  ) : (
-                    'Create Account'
-                  )}
-                </Button>
-              </form>
-            </Form>
+            <RegistrationForm
+              form={form}
+              onSubmit={onSubmit}
+              isPending={isPending}
+              detectLocation={detectLocation}
+              isLoadingLocation={isLoadingLocation}
+              showPassword={showPassword}
+              setShowPassword={setShowPassword}
+              showConfirmPassword={showConfirmPassword}
+              setShowConfirmPassword={setShowConfirmPassword}
+            />
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <div className="relative">
@@ -426,8 +162,8 @@ const Registration = () => {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" className="w-full" disabled={loading}>Google</Button>
-              <Button variant="outline" className="w-full" disabled={loading}>Facebook</Button>
+              <Button variant="outline" className="w-full" disabled={isPending}>Google</Button>
+              <Button variant="outline" className="w-full" disabled={isPending}>Facebook</Button>
             </div>
             <div className="text-center text-sm">
               Already have an account?{" "}

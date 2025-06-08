@@ -39,7 +39,7 @@ const TeamManagement: React.FC = () => {
     enabled: !!id,
   });
 
-  console.log(data)
+  // console.log(data)
 
   const {
     mutate: sendInvite,

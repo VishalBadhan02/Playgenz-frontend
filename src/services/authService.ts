@@ -16,22 +16,32 @@ const useAuthService = () => {
     };
 
     // ✅ OTP Verification
-    const verifyOtp = async (otp: string, token: any) => {
+    const verifyOtp = async (otp: string, purpose: string, token: any) => {
         axios.defaults.headers.common["Authorization"] = token;
-        return await authPost(`${Config.API_GATEWAY}${Config.ENDPOINTS.AUTH}/otpverify`, { otp });
+        return await authPost(`${Config.API_GATEWAY}${Config.ENDPOINTS.AUTH}/otpverify`, { otp, purpose });
     };
+
 
     // ✅ Set/reset password
     const setPassword = async (passwordData: { password: string; token: string }) => {
         return await authPut(`${Config.API_GATEWAY}${Config.ENDPOINTS.AUTH}/setpassword`, passwordData);
     };
 
-    // ✅ Fetch Team Info
-    const getTeam = async () => {
-        return await authGet(`http://${Config.HOST}:${Config.PORT}/auth/getTeam`);
+    // ✅ OTP Verification
+    const forgetpassword = async (userData: object) => {
+        return await authPost(`${Config.API_GATEWAY}${Config.ENDPOINTS.AUTH}/handleForget`, userData);
     };
 
-    return { handlelogin, register, verifyOtp, setPassword, getTeam };
+
+    // ✅ Reset-Password
+    const resetPassword = async (reserData: object, token: any) => {
+        axios.defaults.headers.common["Authorization"] = token;
+        return await authPost(`${Config.API_GATEWAY}${Config.ENDPOINTS.AUTH}/resetPassword`, reserData);
+    };
+
+
+
+    return { handlelogin, register, verifyOtp, setPassword, forgetpassword, resetPassword };
 };
 
 export default useAuthService;

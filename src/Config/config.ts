@@ -1,4 +1,4 @@
-const API_GATEWAY = "http://192.168.1.6:7000";
+const API_GATEWAY = "http://127.0.0.1:7999";
 
 const Config = {
     PORT: 5050,

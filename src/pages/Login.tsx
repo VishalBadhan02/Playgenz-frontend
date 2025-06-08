@@ -3,27 +3,19 @@ import { Link } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeOff, Mail, Lock, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAuth } from '@/contexts/AuthContext';
-import { useAsync } from '@/hooks/use-async';
 import useAuthService from '@/services/authService';
+import { useLoginMutation } from '@/mutations/useAuthMutation';
+import LoginForm from '@/components/forms/loginForm';
+import { formSchema } from '@/validationSchemas/login.schema';
 
-const formSchema = z.object({
-  email: z.string().email({ message: 'Please enter a valid email address' }),
-  password: z.string().min(1, { message: 'Password is required' }),
-});
 
 type FormValues = z.infer<typeof formSchema>;
 
 const Login = () => {
   const [showPassword, setShowPassword] = React.useState(false);
-  const { login } = useAuth();
-  const { handlelogin } = useAuthService(); // Assuming you have a function to handle login
-  const { loading, execute, ServerErrorModal } = useAsync();
+  const { handlelogin } = useAuthService();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -33,47 +25,15 @@ const Login = () => {
     },
   });
 
+  const { loginUser, isPending } = useLoginMutation({ handlelogin, form });
+
+
   const onSubmit = (values: FormValues) => {
-    const { email, password } = values;
-
-    const loginData = {
-      emailOrPhone: email,
-      password,
-    };
-
-    execute(
-      // This is a mock promise that would typically be an API call
-      handlelogin(loginData)
-        .then((response) => {
-          const { status, data, message } = response;
-          if (!status && message?.type === 'email') {
-            form.setError('email', {
-              type: 'manual',
-              message: message.message,
-            });
-            throw new Error('FORM_VALIDATION_ERROR');
-          }
-          if (!status && message?.type === 'password') {
-            form.setError('password', {
-              type: 'manual',
-              message: message.message,
-            });
-            throw new Error('FORM_VALIDATION_ERROR');
-          }
-
-          if (!status) {
-            throw new Error(message || 'Login failed due to invalid credentials.');
-          }
-
-          login(data.token);
-          return data.token;
-        }),
-      {
-        successMessage: "Successfully logged in!",
-        errorMessage: "Failed to log in. Please try again.",
-        showErrorModal: true,
-      }
-    );
+    if (isPending) return; // Prevent multiple submissions
+    loginUser({
+      emailOrPhone: values.email,
+      password: values.password,
+    });
   };
 
   return (
@@ -93,81 +53,13 @@ const Login = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                          <Input
-                            placeholder="Enter your email"
-                            type="email"
-                            className="pl-9"
-                            {...field}
-                            disabled={loading}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex items-center justify-between">
-                        <FormLabel>Password</FormLabel>
-                        <Link
-                          to="/forgot-password"
-                          className="text-xs text-muted-foreground hover:text-primary"
-                        >
-                          Forgot password?
-                        </Link>
-                      </div>
-                      <FormControl>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                          <Input
-                            placeholder="Enter your password"
-                            type={showPassword ? "text" : "password"}
-                            className="pl-9 pr-9"
-                            {...field}
-                            disabled={loading}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-                            aria-label={showPassword ? "Hide password" : "Show password"}
-                            disabled={loading}
-                          >
-                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                          </button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Logging in...
-                    </>
-                  ) : (
-                    'Login'
-                  )}
-                </Button>
-              </form>
-            </Form>
+            <LoginForm
+              form={form}
+              onSubmit={onSubmit}
+              isPending={isPending}
+              showPassword={showPassword}
+              setShowPassword={setShowPassword}
+            />
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <div className="relative">
@@ -181,8 +73,8 @@ const Login = () => {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" className="w-full" disabled={loading}>Google</Button>
-              <Button variant="outline" className="w-full" disabled={loading}>Facebook</Button>
+              <Button variant="outline" className="w-full" disabled={isPending}>Google</Button>
+              <Button variant="outline" className="w-full" disabled={isPending}>Facebook</Button>
             </div>
             <div className="text-center text-sm">
               Don't have an account?{" "}
@@ -193,9 +85,9 @@ const Login = () => {
           </CardFooter>
         </Card>
       </div>
-      <ServerErrorModal />
     </div>
   );
 };
+
 
 export default Login;
