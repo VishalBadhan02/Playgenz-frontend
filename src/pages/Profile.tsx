@@ -1,12 +1,10 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { MapPin, Calendar, LogOut, Users, Trophy, Award, Image } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import useUserService from '@/services/userService';
 import { useParams } from 'react-router-dom';
 import ProfileHeader from '@/components/Profile/ProfileHeader';
 import ProfileTabs from '@/components/Profile/ProfileTabs';
-import OverviewTab from '@/components/Profile/OverviewTab';
 import { useQuery } from '@tanstack/react-query';
 import { ErrorModal } from '@/components/ErrorModal';
 import { Spinner } from '@/components/Spinner';

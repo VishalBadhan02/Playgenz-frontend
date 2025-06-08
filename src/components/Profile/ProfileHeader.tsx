@@ -58,7 +58,7 @@ const ProfileHeader = ({ userData, id, refresh }) => {
                     </div>
                 </div>
                 {id == " " ? <div className="flex gap-2">
-                    <button className="rounded-full bg-white px-4 py-2 text-sm font-medium text-primary hover:bg-white/90 transition-colors">
+                    <button className="rounded-full bg-white px-4 py-2 text-sm font-medium text-primary hover:bg-white/90 transition-colors" onClick={() => window.location.href = "/edit-profile"}>
                         <Edit className="mr-2 inline-block h-4 w-4" />
                         Edit Profile
                     </button>

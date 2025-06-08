@@ -1,8 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { AvatarEditor } from "@/components/profile-editor/AvatarEditor";
 import { ProfilePictureSection } from "@/components/profile-editor/ProfilePictureSection";
 import { PersonalInformationForm } from "@/components/profile-editor/PersonalInformationForm";
+import { useQuery } from "@tanstack/react-query";
+import useUserService from "@/services/userService";
+import { Spinner } from "@/components/Spinner";
+import { ErrorModal } from "@/components/ErrorModal";
+import { useEditUserMutation } from "@/mutations/useUserMutation";
+import { profileSchema } from "@/validationSchemas/profile.schema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface UserProfile {
   firstName: string;
@@ -15,26 +23,73 @@ interface UserProfile {
 }
 
 const EditProfile = () => {
+  const { getProfile, updateProfile } = useUserService();
   const { toast } = useToast();
-  const [profile, setProfile] = useState<UserProfile>({
-    firstName: "John",
-    lastName: "Doe",
-    userName: "johndoe",
-    email: "john.doe@example.com",
-    phoneNumber: "+1 (555) 123-4567",
-    address: "123 Main St, City, State 12345",
-    profilePicture: "",
+
+  const {
+    data: profileData,
+    isLoading: profileLoading,
+    isError,
+    error,
+    refetch
+  } = useQuery({
+    queryKey: ['user-profile'],
+    queryFn: () => getProfile(" "),
   });
+
+  const form = useForm<UserProfile>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      userName: "",
+      email: "",
+      phoneNumber: "",
+      address: "",
+      profilePicture: "https://via.placeholder.com/150",
+    },
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+    reset,
+  } = form;
 
   const [isAvatarEditorOpen, setIsAvatarEditorOpen] = useState(false);
 
-  const handleInputChange = (field: keyof UserProfile, value: string) => {
-    setProfile(prev => ({ ...prev, [field]: value }));
-  };
+  const { editUserData, isEditing } = useEditUserMutation({
+    editUser: updateProfile,
+    form,
+    onSuccessCallback: () => {
+      toast({
+        title: "Profile updated",
+        description: "Your profile information has been successfully saved.",
+      });
+    },
+  });
+
+  // ✅ Update form values once profileData is loaded
+  useEffect(() => {
+    if (profileData?.data) {
+      reset({
+        firstName: profileData.data.firstName || "",
+        lastName: profileData.data.lastName || "",
+        userName: profileData.data.userName || "",
+        email: profileData.data.email || "",
+        phoneNumber: profileData.data.phoneNumber || "",
+        address: profileData.data.address || "",
+        profilePicture: profileData.data.profilePicture || "https://via.placeholder.com/150",
+      });
+    }
+  }, [profileData, reset]);
 
   const handleAvatarSave = (editedImageBlob: Blob) => {
     const imageUrl = URL.createObjectURL(editedImageBlob);
-    setProfile(prev => ({ ...prev, profilePicture: imageUrl }));
+    setValue("profilePicture", imageUrl);
     setIsAvatarEditorOpen(false);
     toast({
       title: "Avatar updated",
@@ -42,20 +97,30 @@ const EditProfile = () => {
     });
   };
 
-  const handleSaveProfile = () => {
-    // Here you would typically save to your backend
-    toast({
-      title: "Profile updated",
-      description: "Your profile information has been successfully saved.",
-    });
-  };
-
   const handleRemovePicture = () => {
-    setProfile(prev => ({ ...prev, profilePicture: "" }));
+    setValue("profilePicture", "");
   };
 
   const handleCancel = () => {
     window.history.back();
+  };
+
+  if (profileLoading) return <Spinner />;
+
+  if (isError) {
+    return (
+      <ErrorModal
+        open={isError}
+        onClose={() => refetch()}
+        error={error}
+        header="Server Error"
+        description="We're experiencing some issues with our server. Please try again later."
+      />
+    );
+  }
+
+  const onSubmit = (data: UserProfile) => {
+    editUserData(data);
   };
 
   return (
@@ -71,7 +136,7 @@ const EditProfile = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1">
             <ProfilePictureSection
-              profilePicture={profile.profilePicture}
+              profilePicture={watch("profilePicture")}
               onEditClick={() => setIsAvatarEditorOpen(true)}
               onRemoveClick={handleRemovePicture}
             />
@@ -79,9 +144,9 @@ const EditProfile = () => {
 
           <div className="lg:col-span-2">
             <PersonalInformationForm
-              profile={profile}
-              onInputChange={handleInputChange}
-              onSave={handleSaveProfile}
+              register={register}
+              errors={errors}
+              onSave={handleSubmit(onSubmit)}
               onCancel={handleCancel}
             />
           </div>

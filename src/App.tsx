@@ -38,6 +38,7 @@ import TeamManagementPage from "./pages/TeamManagement";
 import Bookings from "./pages/Bookings";
 import Scorecard from "./pages/ScoreCard";
 import { GlobalErrorHandler } from "./components/RootLayout";
+import EditProfile from "./pages/EditProfile";
 
 const queryClient = new QueryClient();
 
@@ -68,6 +69,7 @@ const App = () => (
               <Route element={<ProtectedRoute />}>
                 <Route path="/home" element={<Home />} />
                 <Route path="/teams" element={<Teams />} />
+                <Route path="/edit-profile" element={<EditProfile />} />
                 <Route path="/team/manage/:id" element={<TeamManagementPage />} />
                 <Route path="/team/:id" element={<TeamProfile />} />
                 <Route path="/register-team" element={<TeamRegistration />} />
