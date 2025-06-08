@@ -88,8 +88,9 @@ const OTPVerificationModal: React.FC<OTPVerificationModalProps> = ({
           throw new Error('Bad Gateway. Please try again later.');
         }
         if (!res.status) {
+          console.log("Unexpected response:", res);
           setVerificationStatus('error');
-          throw new Error('OTP verification failed. Please try again.');
+          throw new Error(res?.message || 'An unexpected error occurred. Please try again.');
         }
 
         // Success logic

@@ -44,7 +44,7 @@ const ProfileHeader = ({ userData, id, refresh }) => {
                         <div className="mt-2 flex justify-center gap-4 md:justify-start">
                             <div className="flex flex-col items-center md:items-start">
                                 <span className="text-xs text-white/70">Teams</span>
-                                <span className="font-semibold">{userData?.userTeams.length || "12"}</span>
+                                <span className="font-semibold">{userData?.userTeams?.length || "12"}</span>
                             </div>
                             <div className="flex flex-col items-center md:items-start">
                                 <span className="text-xs text-white/70">Matches</span>
