@@ -21,6 +21,7 @@ export const useEditUserMutation = ({
         mutationFn: (values: object) => editUser(values),
         onSuccess: (res: any) => {
             const { status, message } = res;
+            console.log("djgfhfbcihsjfgvfxbhgvbsiudbf uhb", res)
 
             if (!status) {
                 if (res?.message?.type === "email") {

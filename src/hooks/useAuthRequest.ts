@@ -62,8 +62,10 @@ const useAuthRequest = (): AuthRequest => {
             const res = await axios.put(url, data);
             return res.data;
         } catch (error) {
-            console.error("Error in PUT request:", error);
-            handleResponse(error);
+            const data = handleResponse(error);
+            if (data) {
+                return data;
+            }
         }
     };
 

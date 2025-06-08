@@ -121,6 +121,7 @@ const EditProfile = () => {
 
   const onSubmit = (data: UserProfile) => {
     editUserData(data);
+    refetch();
   };
 
   return (

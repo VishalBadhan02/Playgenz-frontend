@@ -234,7 +234,7 @@ export const PersonalInformationForm = ({
           <Button variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit">
+          <Button type="submit" onClick={onSave}>
             Save Changes
           </Button>
         </div>
