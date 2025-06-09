@@ -33,7 +33,7 @@ const Profile = () => {
     queryFn: () => getProfile(id),
     enabled: !!id,
   });
-
+  console.log(profileData)
   if (isLoading) return <Spinner />;
   if (isError) return <ErrorModal
     open={isError}

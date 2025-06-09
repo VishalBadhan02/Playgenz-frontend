@@ -13,7 +13,7 @@ export const UserActions = ({ userData, handleMessage, loading, refresh }) => {
         acceptRequest: false,
     });
 
-    const handleAction = async (actionType, action) => {
+    const handleAction = async (actionType: any, action: any) => {
         setLoadingState((prevState) => ({ ...prevState, [actionType]: true }));
         try {
             const res = await action();
@@ -26,13 +26,12 @@ export const UserActions = ({ userData, handleMessage, loading, refresh }) => {
             setLoadingState((prevState) => ({ ...prevState, [actionType]: false }));
         }
     };
-
     return (
         <div className="flex gap-2">
             {(!userData?.friend || userData?.friend?.status === 2) && (
                 <button
                     className="rounded-full bg-white px-4 py-2 text-sm font-medium text-primary hover:bg-white/90 transition-colors"
-                    onClick={() => handleAction('addFriend', () => sendFriendRequest(userData._id))}
+                    onClick={() => handleAction('addFriend', () => sendFriendRequest(userData?._id))}
                     disabled={loadingState.addFriend}
                 >
                     {loadingState.addFriend ? (

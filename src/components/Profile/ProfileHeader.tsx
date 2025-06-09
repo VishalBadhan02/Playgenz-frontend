@@ -8,6 +8,7 @@ import { UserActions } from './UserAction';
 const ProfileHeader = ({ userData, id, refresh }) => {
     const { loading, execute, ServerErrorModal } = useAsync();
     const { getUserFriends } = useUserService();
+    console.log(userData)
 
     const handleMessage = async () => {
         execute(

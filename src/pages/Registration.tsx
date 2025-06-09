@@ -72,7 +72,7 @@ const Registration = () => {
           if (Math.random() > 0.2) { // 80% success rate
             resolve(authToken);
           } else {
-            reject(new Error('Failed to register. Server error.'));
+            // reject(new Error('Failed to register. Server error.'));
           }
         }, 1500); // Simulate network delay
       }).then((token) => {
