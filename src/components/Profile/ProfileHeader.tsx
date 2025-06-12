@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAsync } from '@/hooks/use-async';
 import useUserService from '@/services/userService';
 import { UserActions } from './UserAction';
+import { Button } from '../ui/button';
 
 const ProfileHeader = ({ userData, id, refresh }) => {
     const { loading, execute, ServerErrorModal } = useAsync();
@@ -34,26 +35,35 @@ const ProfileHeader = ({ userData, id, refresh }) => {
             <div className="relative z-10 flex flex-col items-center gap-4 md:flex-row md:items-start md:justify-between">
                 <div className="flex flex-col items-center gap-4 md:flex-row">
                     <Avatar className="h-24 w-24 border-4 border-white">
+                        {/* <Button
+                            onClick={() => document.getElementById('file-upload')?.click()}
+                        >
+                            sofdlkjfop
+                        </Button> */}
                         <AvatarImage src={userData?.profilePicture || "/placeholder.svg"} alt={userData?.userName || "jhdfbi"} />
                         <AvatarFallback>
                             <User className="h-12 w-12 text-muted-foreground" />
                         </AvatarFallback>
                     </Avatar>
                     <div className="text-center md:text-left">
-                        <h1 className="text-3xl font-bold">{userData?.userName || "dskjn"}</h1>
-                        <p className="text-white/80">{userData?.profession || "jhsdgb"}</p>
+                        <h1 className="text-3xl font-bold">{userData?.userName || ""}</h1>
+                        <p className="text-white/80">{userData?.profession || ""}</p>
                         <div className="mt-2 flex justify-center gap-4 md:justify-start">
                             <div className="flex flex-col items-center md:items-start">
                                 <span className="text-xs text-white/70">Teams</span>
-                                <span className="font-semibold">{userData?.userTeams?.length || "12"}</span>
+                                <span className="font-semibold">{userData?.userTeams?.length || "0"}</span>
                             </div>
                             <div className="flex flex-col items-center md:items-start">
                                 <span className="text-xs text-white/70">Matches</span>
-                                <span className="font-semibold">{userData?.matches || "1"}</span>
+                                <span className="font-semibold">{userData?.matches || "0"}</span>
                             </div>
                             <div className="flex flex-col items-center md:items-start">
                                 <span className="text-xs text-white/70">Tournaments</span>
-                                <span className="font-semibold">{userData?.tournaments || "1"}</span>
+                                <span className="font-semibold">{userData?.tournaments || "0"}</span>
+                            </div>
+                            <div className="flex flex-col items-center md:items-start">
+                                <span className="text-xs text-white/70">Friends</span>
+                                <span className="font-semibold">{userData?.friendCount || "0"}</span>
                             </div>
                         </div>
                     </div>

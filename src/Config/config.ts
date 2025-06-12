@@ -10,7 +10,7 @@ const Config = {
     ENDPOINTS: {
         AUTH: "/auth",
         USER: "/user",
-        TOURNAMENT: "/tournament",
+        TOURNAMENT: "/tournament",  
         PRODUCT: "/product",
         SCORING: "/scoring",
         TEAM: "/team",

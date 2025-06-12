@@ -87,14 +87,17 @@ const EditProfile = () => {
     }
   }, [profileData, reset]);
 
-  const handleAvatarSave = (editedImageBlob: Blob) => {
+  const handleAvatarSave = (editedImageBlob: Blob, originalFile?: File) => {
+    console.log("originalFile", originalFile)
     const imageUrl = URL.createObjectURL(editedImageBlob);
+    const formData = new FormData();
+    formData.append('profilePicture', editedImageBlob || originalFile);
     setValue("profilePicture", imageUrl);
     setIsAvatarEditorOpen(false);
-    toast({
-      title: "Avatar updated",
-      description: "Your profile picture has been successfully updated.",
-    });
+    // toast({
+    //   title: "Avatar updated",
+    //   description: "Your profile picture has been successfully updated.",
+    // });
   };
 
   const handleRemovePicture = () => {

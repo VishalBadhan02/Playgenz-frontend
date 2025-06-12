@@ -7,7 +7,7 @@ import { Upload, Image, Camera, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface ImageUploadProps {
-  onImageUpload: (imageDataUrl: string) => void;
+  onImageUpload: (imageDataUrl: string, file?: File) => void;
 }
 
 export const ImageUpload = ({ onImageUpload }: ImageUploadProps) => {
@@ -18,7 +18,7 @@ export const ImageUpload = ({ onImageUpload }: ImageUploadProps) => {
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
-    
+
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
@@ -42,7 +42,7 @@ export const ImageUpload = ({ onImageUpload }: ImageUploadProps) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const dataUrl = e.target?.result as string;
-      onImageUpload(dataUrl);
+      onImageUpload(dataUrl, file);
     };
     reader.readAsDataURL(file);
   }, [onImageUpload, toast]);
@@ -89,7 +89,7 @@ export const ImageUpload = ({ onImageUpload }: ImageUploadProps) => {
             <X className="h-4 w-4" />
           </Button>
         </div>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="relative">
@@ -107,7 +107,7 @@ export const ImageUpload = ({ onImageUpload }: ImageUploadProps) => {
                 }}
               />
             </div>
-            
+
             <div className="flex justify-center space-x-4 mt-4">
               <Button
                 variant="outline"
@@ -132,26 +132,24 @@ export const ImageUpload = ({ onImageUpload }: ImageUploadProps) => {
         <CardContent className="p-8">
           <div
             {...getRootProps()}
-            className={`text-center cursor-pointer transition-all duration-200 ${
-              isDragActive || dropzoneIsDragActive
-                ? "scale-105 opacity-80"
-                : "hover:scale-102"
-            }`}
+            className={`text-center cursor-pointer transition-all duration-200 ${isDragActive || dropzoneIsDragActive
+              ? "scale-105 opacity-80"
+              : "hover:scale-102"
+              }`}
           >
             <input {...getInputProps()} />
             <div className="flex flex-col items-center space-y-4">
-              <div className={`p-6 rounded-full transition-colors ${
-                isDragActive || dropzoneIsDragActive 
-                  ? "bg-primary/20 text-primary" 
-                  : "bg-muted text-muted-foreground"
-              }`}>
+              <div className={`p-6 rounded-full transition-colors ${isDragActive || dropzoneIsDragActive
+                ? "bg-primary/20 text-primary"
+                : "bg-muted text-muted-foreground"
+                }`}>
                 {isDragActive || dropzoneIsDragActive ? (
                   <Upload className="h-12 w-12" />
                 ) : (
                   <Image className="h-12 w-12" />
                 )}
               </div>
-              
+
               <div className="space-y-2">
                 <h3 className="text-lg font-semibold">
                   {isDragActive || dropzoneIsDragActive

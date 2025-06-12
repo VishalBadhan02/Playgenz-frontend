@@ -19,6 +19,8 @@ export const AvatarEditor = ({ isOpen, onClose, onSave }: AvatarEditorProps) => 
   const [originalImage, setOriginalImage] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState<"upload" | "crop" | "filter">("upload");
+  const [originalFile, setOriginalFile] = useState<File | null>(null);
+
   const [filters, setFilters] = useState({
     brightness: 100,
     contrast: 100,
@@ -29,8 +31,9 @@ export const AvatarEditor = ({ isOpen, onClose, onSave }: AvatarEditorProps) => 
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const handleImageUpload = useCallback((imageDataUrl: string) => {
+  const handleImageUpload = useCallback((imageDataUrl: string, file?: File) => {
     setOriginalImage(imageDataUrl);
+    setOriginalFile(file || null);
     setCurrentStep("upload");
   }, []);
 
@@ -40,6 +43,7 @@ export const AvatarEditor = ({ isOpen, onClose, onSave }: AvatarEditorProps) => 
   }, []);
 
   const handleSave = useCallback(async () => {
+
     const imageToSave = croppedImage || originalImage;
     if (!canvasRef.current || !imageToSave) {
       toast({
@@ -60,7 +64,7 @@ export const AvatarEditor = ({ isOpen, onClose, onSave }: AvatarEditorProps) => 
       img.onload = () => {
         canvas.width = img.width;
         canvas.height = img.height;
-        
+
         // Apply filters
         ctx.filter = `
           brightness(${filters.brightness}%) 
@@ -69,9 +73,9 @@ export const AvatarEditor = ({ isOpen, onClose, onSave }: AvatarEditorProps) => 
           blur(${filters.blur}px) 
           sepia(${filters.sepia}%)
         `;
-        
+
         ctx.drawImage(img, 0, 0);
-        
+
         canvas.toBlob((blob) => {
           if (blob) {
             onSave(blob);
@@ -87,7 +91,7 @@ export const AvatarEditor = ({ isOpen, onClose, onSave }: AvatarEditorProps) => 
         variant: "destructive",
       });
     }
-  }, [croppedImage, originalImage, filters, onSave, toast]);
+  }, [croppedImage, originalImage, filters, onSave, toast, originalFile]);
 
   const handleClose = useCallback(() => {
     setOriginalImage(null);
@@ -192,7 +196,7 @@ export const AvatarEditor = ({ isOpen, onClose, onSave }: AvatarEditorProps) => 
                       Choose Different Photo
                     </Button>
                   </div>
-                  
+
                   <div className="flex flex-col gap-2 mt-auto">
                     <Button
                       onClick={handleSave}
@@ -239,6 +243,7 @@ export const AvatarEditor = ({ isOpen, onClose, onSave }: AvatarEditorProps) => 
                 </div>
               </div>
             )}
+
           </div>
         </div>
 
