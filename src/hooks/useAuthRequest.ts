@@ -58,8 +58,13 @@ const useAuthRequest = (): AuthRequest => {
 
     const authPut = async (url: string, data: any): Promise<any> => {
         try {
-            console.log("PUT request to:", url);
-            const res = await axios.put(url, data);
+            let headers = {};
+
+            if (data instanceof FormData) {
+                headers['Content-Type'] = 'application/json';
+            }
+
+            const res = await axios.put(url, data, { headers });
             return res.data;
         } catch (error) {
             const data = handleResponse(error);
@@ -68,6 +73,7 @@ const useAuthRequest = (): AuthRequest => {
             }
         }
     };
+
 
     const authDelete = async (url: string, data: any): Promise<any> => {
         try {

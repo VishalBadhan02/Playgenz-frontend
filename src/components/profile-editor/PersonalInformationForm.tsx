@@ -131,8 +131,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, Phone, MapPin, AtSign } from "lucide-react";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
+import { Spinner } from "../Spinner";
 
 
 interface UserProfile {
@@ -150,13 +150,16 @@ interface PersonalInformationFormProps {
   errors: FieldErrors<UserProfile>;
   onSave: () => void;
   onCancel: () => void;
+  isEditing: boolean;
+
 }
 
 export const PersonalInformationForm = ({
   register,
   errors,
   onSave,
-  onCancel
+  onCancel,
+  isEditing
 }: PersonalInformationFormProps) => {
   // console.log(register("firstName"))
   return (
@@ -230,14 +233,14 @@ export const PersonalInformationForm = ({
 
         <Separator />
 
-        <div className="flex justify-end space-x-4">
+        {!isEditing ? <div className="flex justify-end space-x-4">
           <Button variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit" onClick={onSave}>
+          <Button type="submit" onClick={onSave} disabled={isEditing}>
             Save Changes
           </Button>
-        </div>
+        </div> : <Spinner />}
       </CardContent>
     </Card>
   );

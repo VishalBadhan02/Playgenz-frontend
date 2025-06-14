@@ -64,6 +64,7 @@ const EditProfile = () => {
   const { editUserData, isEditing } = useEditUserMutation({
     editUser: updateProfile,
     form,
+    reload: refetch,
     onSuccessCallback: () => {
       toast({
         title: "Profile updated",
@@ -87,17 +88,13 @@ const EditProfile = () => {
     }
   }, [profileData, reset]);
 
+  const [profileFile, setProfileFile] = useState<File | null>(null);
+
   const handleAvatarSave = (editedImageBlob: Blob, originalFile?: File) => {
-    console.log("originalFile", originalFile)
     const imageUrl = URL.createObjectURL(editedImageBlob);
-    const formData = new FormData();
-    formData.append('profilePicture', editedImageBlob || originalFile);
     setValue("profilePicture", imageUrl);
+    setProfileFile(originalFile);
     setIsAvatarEditorOpen(false);
-    // toast({
-    //   title: "Avatar updated",
-    //   description: "Your profile picture has been successfully updated.",
-    // });
   };
 
   const handleRemovePicture = () => {
@@ -122,10 +119,22 @@ const EditProfile = () => {
     );
   }
 
-  const onSubmit = (data: UserProfile) => {
-    editUserData(data);
-    refetch();
+  const onSubmit = async (data: UserProfile) => {
+    if (!profileFile) {
+      await editUserData(data);  // JSON request
+    } else {
+      const formData = new FormData();
+      formData.append("firstName", data.firstName);
+      formData.append("lastName", data.lastName);
+      formData.append("userName", data.userName);
+      formData.append("email", data.email);
+      formData.append("phoneNumber", data.phoneNumber);
+      formData.append("address", data.address);
+      formData.append("profilePicture", profileFile);
+      await editUserData(formData);
+    }
   };
+
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
@@ -147,12 +156,15 @@ const EditProfile = () => {
           </div>
 
           <div className="lg:col-span-2">
-            <PersonalInformationForm
-              register={register}
-              errors={errors}
-              onSave={handleSubmit(onSubmit)}
-              onCancel={handleCancel}
-            />
+            {isEditing ? <Spinner />
+              :
+              <PersonalInformationForm
+                register={register}
+                errors={errors}
+                onSave={handleSubmit(onSubmit)}
+                onCancel={handleCancel}
+                isEditing={isEditing}
+              />}
           </div>
         </div>
 

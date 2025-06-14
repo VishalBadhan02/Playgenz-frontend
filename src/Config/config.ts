@@ -1,4 +1,4 @@
-const API_GATEWAY = "http://127.0.0.1:7999";
+const API_GATEWAY = "http://192.168.31.177:8995";
 
 const Config = {
     PORT: 5050,
@@ -10,7 +10,7 @@ const Config = {
     ENDPOINTS: {
         AUTH: "/auth",
         USER: "/user",
-        TOURNAMENT: "/tournament",  
+        TOURNAMENT: "/tournament",
         PRODUCT: "/product",
         SCORING: "/scoring",
         TEAM: "/team",

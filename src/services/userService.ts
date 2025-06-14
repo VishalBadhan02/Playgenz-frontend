@@ -47,6 +47,10 @@ const useUserService = () => {
         return await authPost(`${Config.API_GATEWAY}${Config.ENDPOINTS.USER}/postMessage`, messageData);
     };
 
+    const handleMedia = async (mediaData: object) => {
+        return await authPost(`${Config.API_GATEWAY}${Config.ENDPOINTS.USER}/media-upload`, mediaData);
+    };
+
 
     // ✅ DELETE Requests
     const handleDelete = async (_id: any) => {
@@ -76,7 +80,8 @@ const useUserService = () => {
         postMessage,
         handleDelete,
         handleApproval,
-        updateProfile
+        updateProfile,
+        handleMedia
     };
 };
 

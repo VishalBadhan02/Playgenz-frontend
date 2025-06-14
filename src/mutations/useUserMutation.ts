@@ -5,12 +5,14 @@ interface EditUserMutationProps {
     editUser: (values: object) => Promise<any>;
     form?: any;
     onSuccessCallback?: () => void;
+    reload: () => void;
 }
 
 export const useEditUserMutation = ({
     editUser,
     form,
     onSuccessCallback,
+    reload
 }: EditUserMutationProps) => {
     const { toast } = useToast();
 
@@ -21,7 +23,6 @@ export const useEditUserMutation = ({
         mutationFn: (values: object) => editUser(values),
         onSuccess: (res: any) => {
             const { status, message } = res;
-            console.log("djgfhfbcihsjfgvfxbhgvbsiudbf uhb", res)
 
             if (!status) {
                 if (res?.message?.type === "email") {

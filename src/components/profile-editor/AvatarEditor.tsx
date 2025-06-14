@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 interface AvatarEditorProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (blob: Blob) => void;
+  onSave: (blob: Blob, originalFile: any) => void;
 }
 
 export const AvatarEditor = ({ isOpen, onClose, onSave }: AvatarEditorProps) => {
@@ -78,7 +78,7 @@ export const AvatarEditor = ({ isOpen, onClose, onSave }: AvatarEditorProps) => 
 
         canvas.toBlob((blob) => {
           if (blob) {
-            onSave(blob);
+            onSave(blob, originalFile);
             handleClose();
           }
         }, 'image/png', 1.0);
