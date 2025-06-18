@@ -1,4 +1,4 @@
-const API_GATEWAY = "http://192.168.31.177:8995";
+const API_GATEWAY = "http://localhost:8995";
 
 const Config = {
     PORT: 5050,

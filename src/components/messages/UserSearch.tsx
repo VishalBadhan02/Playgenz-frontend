@@ -50,7 +50,6 @@ const UserSearch: React.FC = () => {
       getFriends(searchQuery)
         .then((response) => {
           const { status, data, message } = response;
-          console.log('Response:', response);
           if (!status) {
             throw new Error(message || 'Login failed due to invalid credentials.');
           }
@@ -79,12 +78,12 @@ const UserSearch: React.FC = () => {
 
 
   // Filter users based on search query
-  const filteredUsers = users.filter(user =>
+  const filteredUsers = users?.filter(user =>
     searchQuery === '' ||
-    user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (user.sports && user.sports.some(sport =>
-      sport.toLowerCase().includes(searchQuery.toLowerCase())
+    user?.name?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
+    user?.username?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
+    (user?.sports && user?.sports.some(sport =>
+      sport?.toLowerCase().includes(searchQuery?.toLowerCase())
     ))
   );
 

@@ -105,19 +105,18 @@ const SearchUsers = () => {
   const { execute, loading } = useAsync();
 
   // Filter users based on search query and active tab
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = 
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (user.location && user.location.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (user.sports && user.sports.some(sport => 
-        sport.toLowerCase().includes(searchQuery.toLowerCase())
-      ));
-    
+  const filteredUsers = users?.filter(user => {
+    const matchesSearch =
+      (user?.name || '')?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
+      (user?.username || '')?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
+      (user?.location || '')?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
+      (user?.sports || []).some(sport => (sport || '')?.toLowerCase().includes(searchQuery?.toLowerCase()));
+
+
     if (activeTab === 'all') return matchesSearch;
-    if (activeTab === 'friends') return matchesSearch && user.isFriend;
-    if (activeTab === 'pending') return matchesSearch && user.isPending;
-    
+    if (activeTab === 'friends') return matchesSearch && user?.isFriend;
+    if (activeTab === 'pending') return matchesSearch && user?.isPending;
+
     return matchesSearch;
   });
 
@@ -127,10 +126,10 @@ const SearchUsers = () => {
         // In a real app, this would be an API call
         new Promise<void>((resolve) => {
           setTimeout(() => {
-            setUsers(prevUsers => 
-              prevUsers.map(user => 
-                user.id === userId 
-                  ? { ...user, isPending: true, isFriend: false } 
+            setUsers(prevUsers =>
+              prevUsers?.map(user =>
+                user?.id === userId
+                  ? { ...user, isPending: true, isFriend: false }
                   : user
               )
             );
@@ -152,10 +151,10 @@ const SearchUsers = () => {
         // In a real app, this would be an API call
         new Promise<void>((resolve) => {
           setTimeout(() => {
-            setUsers(prevUsers => 
-              prevUsers.map(user => 
-                user.id === userId 
-                  ? { ...user, isPending: false } 
+            setUsers(prevUsers =>
+              prevUsers?.map(user =>
+                user?.id === userId
+                  ? { ...user, isPending: false }
                   : user
               )
             );
@@ -177,10 +176,10 @@ const SearchUsers = () => {
         // In a real app, this would be an API call
         new Promise<void>((resolve) => {
           setTimeout(() => {
-            setUsers(prevUsers => 
-              prevUsers.map(user => 
-                user.id === userId 
-                  ? { ...user, isFriend: false } 
+            setUsers(prevUsers =>
+              prevUsers?.map(user =>
+                user?.id === userId
+                  ? { ...user, isFriend: false }
                   : user
               )
             );
@@ -199,17 +198,17 @@ const SearchUsers = () => {
   return (
     <div className="container max-w-3xl mx-auto px-4 py-8">
       <div className="flex items-center gap-4 mb-6">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => navigate(-1)} 
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate(-1)}
           aria-label="Go back"
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <h1 className="text-2xl font-bold">Find Friends</h1>
       </div>
-      
+
       {/* Search input */}
       <div className="relative mb-6">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -221,7 +220,7 @@ const SearchUsers = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
-      
+
       {/* Tabs for filtering */}
       <Tabs defaultValue="all" onValueChange={setActiveTab}>
         <TabsList className="mb-6 grid w-full grid-cols-3">
@@ -230,42 +229,42 @@ const SearchUsers = () => {
           <TabsTrigger value="pending">Pending</TabsTrigger>
         </TabsList>
       </Tabs>
-      
+
       {/* Users list */}
       <ScrollArea className="h-[calc(100vh-16rem)]">
         <div className="space-y-4">
-          {filteredUsers.length > 0 ? (
-            filteredUsers.map((user) => (
-              <div 
-                key={user.id}
+          {filteredUsers?.length > 0 ? (
+            filteredUsers?.map((user) => (
+              <div
+                key={user?.id}
                 className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/10 transition-colors"
               >
                 {/* User info */}
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <Avatar>
-                      <AvatarImage src={user.avatar} alt={user.name} />
-                      <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                      <AvatarImage src={user?.avatar} alt={user?.name} />
+                      <AvatarFallback>{user?.name.charAt(0)}</AvatarFallback>
                     </Avatar>
-                    <span 
+                    <span
                       className={cn(
                         "absolute bottom-0 right-0 block h-3 w-3 rounded-full border-2 border-background",
-                        user.status === 'online' ? "bg-green-500" :
-                        user.status === 'away' ? "bg-yellow-500" : "bg-gray-400"
+                        user?.status === 'online' ? "bg-green-500" :
+                          user?.status === 'away' ? "bg-yellow-500" : "bg-gray-400"
                       )}
                     />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold">{user.name}</h3>
-                      <span className="text-sm text-muted-foreground">{user.username}</span>
+                      <h3 className="font-semibold">{user?.name}</h3>
+                      <span className="text-sm text-muted-foreground">{user?.username}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                      {user.location && <span>{user.location}</span>}
+                      {user?.location && <span>{user?.location}</span>}
                     </div>
-                    {user.sports && (
+                    {user?.sports && (
                       <div className="flex flex-wrap gap-1.5 mt-2">
-                        {user.sports.map(sport => (
+                        {user?.sports.map(sport => (
                           <Badge key={sport} variant="secondary" className="text-xs">
                             {sport}
                           </Badge>
@@ -274,33 +273,33 @@ const SearchUsers = () => {
                     )}
                   </div>
                 </div>
-                
+
                 {/* Friend actions */}
-                {user.isFriend ? (
-                  <Button 
-                    variant="outline" 
+                {user?.isFriend ? (
+                  <Button
+                    variant="outline"
                     size="sm"
-                    onClick={() => handleRemoveFriend(user.id)}
+                    onClick={() => handleRemoveFriend(user?.id)}
                     disabled={loading}
                   >
                     <Check className="mr-1 h-3.5 w-3.5 text-green-500" />
                     Friends
                   </Button>
-                ) : user.isPending ? (
-                  <Button 
-                    variant="outline" 
+                ) : user?.isPending ? (
+                  <Button
+                    variant="outline"
                     size="sm"
-                    onClick={() => handleCancelRequest(user.id)}
+                    onClick={() => handleCancelRequest(user?.id)}
                     disabled={loading}
                   >
                     <X className="mr-1 h-3.5 w-3.5" />
                     Cancel
                   </Button>
                 ) : (
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
-                    onClick={() => handleAddFriend(user.id)}
+                    onClick={() => handleAddFriend(user?.id)}
                     disabled={loading}
                   >
                     <UserPlus className="mr-1 h-3.5 w-3.5" />
