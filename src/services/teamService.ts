@@ -30,6 +30,7 @@ const useTeamService = () => {
     };
 
     // ✅ Get teams based on game type
+    // Used in FindTeam.tsx
     const fetchTeams = async (game: string) => {
         return await authGet(`${Config.API_GATEWAY}${Config.ENDPOINTS.TEAM}/fetchTeams/${game}`);
     };

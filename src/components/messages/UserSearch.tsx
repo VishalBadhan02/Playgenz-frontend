@@ -23,7 +23,7 @@ interface User {
   name: string;
   username: string;
   avatar?: string;
-  status: 'online' | 'away' | 'offline';
+  status: 'online' | 'away' | 'offline' | 'sent' | 'none' | 'friends' | 'received';
   location?: string;
   sports?: string[];
   isFriend?: boolean;
@@ -58,7 +58,7 @@ const UserSearch: React.FC = () => {
             id: user?._id,
             name: user?.userName,
             avatar: user?.profilePicture,
-            status: 'online',
+            status: user?.status,
             location: 'Boston',
             sports: ['Tennis', 'Swimming'],
           })) || [];
@@ -141,11 +141,19 @@ const UserSearch: React.FC = () => {
                     </div>
                     {user.sports && (
                       <div className="flex flex-wrap gap-1.5 mt-2">
-                        {user.sports.map(sport => (
-                          <Badge key={sport} variant="secondary" className="text-xs">
-                            {sport}
-                          </Badge>
-                        ))}
+                        {user.status === "sent" && (
+                          <Button variant="outline" size="sm">Undo</Button>
+                        )}
+                        {user.status === "friends" && (
+                          <Button variant="secondary" size="sm">Unfriend</Button>
+                        )}
+                        {user.status === "none" && (
+                          <Button variant="default" size="sm">Add</Button>
+                        )}
+                        {user.status === "received" && (
+                          <Button variant="destructive" size="sm">Accept</Button>
+                        )}
+
                       </div>
                     )}
                   </div>

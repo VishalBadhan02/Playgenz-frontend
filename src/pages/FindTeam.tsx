@@ -27,7 +27,7 @@ const FindTeam = () => {
     error,
     refetch
   } = useQuery({
-    queryKey: ['user-profile', selectedSport],
+    queryKey: ['team-fetching', selectedSport],
     queryFn: () => fetchTeams(selectedSport),
   });
 
